@@ -1,8 +1,0 @@
-uuid
-pydantic
-pydantic-settings
-PyYAML
-taskiq
-taskiq-aio-pika
-taskiq-redis
-git+https://github.com/Andrew-the-Programmer/wg-easy-api.git@wg-easy-v15.4.0

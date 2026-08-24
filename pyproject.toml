@@ -1,3 +1,33 @@
+[tool.poetry]
+name = "shiro_peerhub"
+version = "0.0.0"
+description = "declares peerhub workers"
+authors = ["AndrewCh <andrey.chikin1223@gmail.com>"]
+license = "MIT"
+readme = "README.md"
+repository = "https://github.com/ShiroVPN/peerhub_lib"
+
+[tool.poetry.dependencies]
+python = "^3.14"
+uuid = "^1.30"
+pydantic = "^2.13.4"
+taskiq = "^0.12.5"
+taskiq-aio-pika = "^0.6.0"
+
+[tool.poetry.group.dev.dependencies]
+basedpyright = "^1.39.10"
+black = "^26.5.1"
+isort = "^8.0.1"
+
+[tool.poetry.group.test.dependencies]
+
+[tool.pytest.ini_options]
+testpaths = ["./tests"]
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
+
 [tool.black]
 line-length = 80
 target-version = ['py314']
@@ -6,6 +36,3 @@ target-version = ['py314']
 profile = "black"
 
 [tool.basedpyright]
-reportImplicitOverride = false
-reportMissingTypeStubs = false
-exclude = ["wg_easy_api"]
