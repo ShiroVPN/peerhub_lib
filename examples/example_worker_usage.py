@@ -2,7 +2,7 @@ from uuid import UUID, uuid4
 
 from pydantic import AmqpDsn
 
-from shiro_peerhub_worker.broker import (
+from shiro_peerhub.broker import (
     BrokerConfigForWorker,
     create_broker_for_worker,
     define_broker,
@@ -19,10 +19,10 @@ broker = create_broker_for_worker(broker_config)
 
 define_broker(broker)
 
-from shiro_peerhub_worker.models import Success
+from shiro_peerhub.models import Success
 
 # after define_broker was called
-from shiro_peerhub_worker.workers import enable_peer
+from shiro_peerhub.workers import enable_peer
 
 from .dependencies import db_dependency
 
