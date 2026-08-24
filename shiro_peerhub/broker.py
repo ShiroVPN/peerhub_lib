@@ -1,11 +1,16 @@
-from collections.abc import Coroutine
-from typing import TypeVar
+__all__ = [
+    "BrokerConfigForClient",
+    "BrokerConfigForWorker",
+    "create_broker_for_client",
+    "create_broker_for_worker",
+    "broker",
+    "define_broker",
+]
+
 from uuid import UUID
 
 from aio_pika import ExchangeType
 from pydantic import AmqpDsn, BaseModel
-from taskiq import AsyncTaskiqDecoratedTask
-from taskiq.kicker import AsyncKicker
 from taskiq_aio_pika import AioPikaBroker, Exchange, Queue
 
 
@@ -50,13 +55,3 @@ broker: AioPikaBroker | None = None
 def define_broker(value: AioPikaBroker) -> None:
     global broker
     broker = value
-
-
-C = TypeVar("C", bound=Coroutine[object, object, object])
-
-
-def route_task_to_peerhub(
-    task: AsyncTaskiqDecoratedTask[..., C],
-    peerhub_id: UUID,
-) -> AsyncKicker[..., C]:
-    return task.kicker().with_labels(peerhub_id=str(peerhub_id))
