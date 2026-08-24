@@ -8,8 +8,8 @@ from shiro_peerhub.broker import (
     BrokerConfigForClient,
     create_broker_for_client,
     define_broker,
-    route_task_to_peerhub,
 )
+from shiro_peerhub.util import route_task_to_peerhub
 
 broker_config = BrokerConfigForClient(
     broker_url=AmqpDsn("amqp://user:password@localhost:5672"),

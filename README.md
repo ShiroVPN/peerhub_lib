@@ -8,14 +8,12 @@ This is a python pkg that declares `peerhub` workers. It is used in `main api` t
 from uuid import uuid4
 
 from pydantic import AmqpDsn
-from taskiq.middlewares.taskiq_admin_middleware import TaskiqAdminMiddleware
 from taskiq_redis import RedisAsyncResultBackend
 
-from shiro_peerhub_worker.broker import (
+from shiro_peerhub.broker import (
     BrokerConfigForClient,
     create_broker_for_client,
     define_broker,
-    route_task_to_peerhub,
 )
 
 broker_config = BrokerConfigForClient(
@@ -23,24 +21,16 @@ broker_config = BrokerConfigForClient(
     exchange_name="kiwi",
 )
 
-broker = (
-    create_broker_for_client(broker_config)
-    .with_result_backend(
-        RedisAsyncResultBackend("redis://localhost:6379/0"),
-    )
-    .with_middlewares(
-        TaskiqAdminMiddleware(
-            url="http://localhost:3000",
-            api_token="secure_string",
-            taskiq_broker_name="peerhub",
-        )
-    )
+broker = create_broker_for_client(broker_config).with_result_backend(
+    RedisAsyncResultBackend("redis://localhost:6379/0"),
 )
 
 define_broker(broker)
 
 # after define_broker was called
-from shiro_peerhub_worker.workers import enable_peer
+
+from shiro_peerhub.util import route_task_to_peerhub
+from shiro_peerhub.workers import enable_peer
 
 
 async def main():
