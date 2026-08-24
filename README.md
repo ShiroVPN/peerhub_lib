@@ -1,0 +1,129 @@
+# Peerhub python package
+
+This is a python pkg that declares `peerhub` workers. It is used in `main api` to manage peers and in `peerhub workers` to execute tasks.
+
+# Usage example on client
+
+```python
+from uuid import uuid4
+
+from pydantic import AmqpDsn
+from taskiq.middlewares.taskiq_admin_middleware import TaskiqAdminMiddleware
+from taskiq_redis import RedisAsyncResultBackend
+
+from shiro_peerhub_worker.broker import (
+    BrokerConfigForClient,
+    create_broker_for_client,
+    define_broker,
+    route_task_to_peerhub,
+)
+
+broker_config = BrokerConfigForClient(
+    broker_url=AmqpDsn("amqp://user:password@localhost:5672"),
+    exchange_name="kiwi",
+)
+
+broker = (
+    create_broker_for_client(broker_config)
+    .with_result_backend(
+        RedisAsyncResultBackend("redis://localhost:6379/0"),
+    )
+    .with_middlewares(
+        TaskiqAdminMiddleware(
+            url="http://localhost:3000",
+            api_token="secure_string",
+            taskiq_broker_name="peerhub",
+        )
+    )
+)
+
+define_broker(broker)
+
+# after define_broker was called
+from shiro_peerhub_worker.workers import enable_peer
+
+
+async def main():
+    task = await route_task_to_peerhub(
+        enable_peer,
+        uuid4(),
+    ).kiq(
+        uuid4(),
+    )
+    result = await task.wait_result()
+    print(result.return_value)
+
+
+if __name__ == "__main__":
+    print("Success!")
+```
+
+# Usage example on worker
+
+```python
+from uuid import UUID, uuid4
+
+from pydantic import AmqpDsn
+
+from shiro_peerhub_worker.broker import (
+    BrokerConfigForWorker,
+    create_broker_for_worker,
+    define_broker,
+)
+
+broker_config = BrokerConfigForWorker(
+    broker_url=AmqpDsn("amqp://user:password@localhost:5672"),
+    exchange_name="kiwi",
+    queue_name="q",
+    peerhub_id=uuid4(),
+)
+
+broker = create_broker_for_worker(broker_config)
+
+define_broker(broker)
+
+from shiro_peerhub_worker.models import Success
+
+# after define_broker was called
+from shiro_peerhub_worker.workers import enable_peer
+
+from .dependencies import db_dependency
+
+
+@broker.task(task_name=enable_peer.task_name)
+async def _enable_peer_impl(id: UUID, db: db_dependency) -> Success:
+    return Success()
+
+
+if __name__ == "__main__":
+    print("Success!")
+```
+
+# Models
+
+> same for all types of peerhub workers.
+
+| Name    | Fields                                   |
+| ------- | ---------------------------------------- |
+| Peer    | id: UUID<br/>name: str<br/>enabled: bool |
+| PeerAdd | name: str<br/>id: UUID                   |
+| Success | ok: bool = True                          |
+
+# Workers
+
+> same for all types of peerhub workers.
+
+| Name                 | Input   | Output  |
+| -------------------- | ------- | ------- |
+| peerhub.get_peer     | UUID    | Peer    |
+| peerhub.add_peer     | PeerAdd | Peer    |
+| peerhub.enable_peer  | UUID    | Success |
+| peerhub.disable_peer | UUID    | Success |
+| peerhub.delete_peer  | UUID    | Success |
+| peerhub.get_config   | UUID    | str     |
+
+# Exceptions
+
+| Name           | Description                                 |
+| -------------- | ------------------------------------------- |
+| peer_not_found | Raised if peer with given id was not found. |

@@ -1,0 +1,11 @@
+[tool.black]
+line-length = 80
+target-version = ['py314']
+
+[tool.isort]
+profile = "black"
+
+[tool.basedpyright]
+reportImplicitOverride = false
+reportMissingTypeStubs = false
+exclude = ["wg_easy_api"]
