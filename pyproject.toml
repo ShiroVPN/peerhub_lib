@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "shiro_peerhub"
-version = "0.0.0"
+version = "0.1.0"
 description = "declares peerhub workers"
 authors = ["AndrewCh <andrey.chikin1223@gmail.com>"]
 license = "MIT"
